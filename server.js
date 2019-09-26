@@ -1,6 +1,18 @@
-var http = require('http');
 var fs = require('fs');
 var path = require('path');
+var express = require('express');
+
+var app = express();
+app.use(express.urlencoded());
+app.use(express.json());
+
+app.get('/', function(req, res) {
+    res.sendFile('main.html', {root: __dirname})
+});
+
+var port = process.env.PORT || 3001;
+var server = app.listen(port);
+console.log('Express app started on port ' + port);
 
 function readSizeRecursive(item) {
     var stats = fs.lstatSync(item);
@@ -21,29 +33,56 @@ function readSizeRecursive(item) {
     }   
 }
 
-function numberWithCommas(x) {
-    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-}
-
-http.createServer(function (request, response) {
-    if (request.url == '/favicon.ico') {
-        return;
-    }
-
-    response.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-    response.write('Search: <input type="text" name="rootpath" value="C:\\Private\\DNVGL Archive" style="width:50%"><br>');
-    response.write('<table style="width:100%"><tr><th>Path</th><th>Size</th><th>Count</th></tr>')
-    
-    var rootpath = 'C:\\Private\\DNVGL Archive';
+app.get('/foldersize', function(req, res) {
+    var rootpath = req.query.rootpath;
     var list = fs.readdirSync(rootpath);
+    var resultList = [];
     list.forEach(function(item) {
         var abspath = path.join(rootpath, item)
 
         var result = readSizeRecursive(abspath);
-        response.write('<tr><td>'+result.path+'</td><td>'+numberWithCommas(result.size)+'</td><td>'+result.count+'</td></tr>');
+        resultList.push(result);
     });
+    res.write(JSON.stringify({data: resultList}));
+    res.end();
+});
 
-    response.end('</table>\n');
-}).listen(3001);
+function findemptyRecursive(item, results) {
+    var stats = fs.lstatSync(item);
 
-console.log('Server running at http://127.0.0.1:3001/');
+    if (stats.isDirectory()) {
+        var list = fs.readdirSync(item);
+        if (list.length === 0) {
+            results.push({ path: item, isDirectory: true })
+            return true;
+        }
+        list.forEach(function(subItem) {
+            findemptyRecursive(path.join(item, subItem), results);
+        });
+    } else {
+        if(stats.size === 0) {
+            results.push( { path: item, isDirectory: false });
+            return true;
+        }
+    }
+    return false;
+}
+
+app.get('/findempty', function(req, res) {
+    var rootpath = req.query.rootpath;
+    var results = [];
+    findemptyRecursive(rootpath, results);
+    res.write(JSON.stringify({data: results}));
+    res.end();
+});
+
+app.post('/findempty', function(req, res) {
+    var result = JSON.parse(req.body.data);
+    result.forEach(function(elem) {
+        if (elem.isDirectory) {
+            fs.rmdirSync(elem.path);
+        } else {
+            fs.unlinkSync(elem.path);
+        }
+    });
+});

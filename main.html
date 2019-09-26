@@ -1,0 +1,55 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+    Search: <input id="searchtxtbox" type="text" name="rootpath" value="C:\Private\DNVGL Archive" style="width:40%">
+    <button id="overviewbtn">Overview</button>
+    <button id="findemptybtn">Find Empty</button><br>
+    <table id="resulttb" style="width:100%"></table>
+    <div id="btndiv" hidden>
+        <button id="cleanupbtn">Clean-up</button>
+    </div>
+
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+    <script>
+    var currenttask = '';
+    var currentdata = null;
+
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    $('#overviewbtn').click(function() {
+        $.get('http://localhost:3001/foldersize', { rootpath:$('#searchtxtbox').val() }, function(data) {
+            var resulttb = $('#resulttb');
+            resulttb.empty().append('<tr><th>Path</th><th>Size</th><th>Count</th></tr>');
+            var result = JSON.parse(data);
+            result.data.forEach(function(element){
+                resulttb.append('<tr><td>'+element.path+'</td><td>'+numberWithCommas(element.size)+'</td><td>'+element.count+'</td></tr>');
+            });
+            $('#btndiv').hide();
+        });
+    });
+
+    $('#findemptybtn').click(function() {
+        $.get('http://localhost:3001/findempty', { rootpath:$('#searchtxtbox').val() }, function(data) {
+            var resulttb = $('#resulttb');
+            resulttb.empty().append('<tr><th>Path</th><th>Is Directory</th></tr>');
+            currentdata = JSON.parse(data).data;
+            currentdata.forEach(function(element) {
+                resulttb.append('<tr><td>'+element.path+'</td><td>'+element.isDirectory+'</td></tr>');
+            });
+            $('#btndiv').show();
+            currenttask = 'findempty';
+        });
+    });
+
+    $('#cleanupbtn').click(function() {
+        $.post('http://localhost:3001/'+currenttask, { data: JSON.stringify(currentdata) }, function(data) {
+
+        });
+    });
+    </script>
+</body>
+</html>
