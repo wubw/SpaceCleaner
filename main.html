@@ -5,10 +5,12 @@
 <body>
     Search: <input id="searchtxtbox" type="text" name="rootpath" value="C:\Private\DNVGL Archive" style="width:40%">
     <button id="overviewbtn">Overview</button>
-    <button id="findemptybtn">Find Empty</button><br>
+    <button id="cleanemptybtn">Clean Empty</button>
+    <button id="cleanrubbishbtn">Clean Rubbish</button>
+    <button id="compressbtn">Compress</button><br>
     <table id="resulttb" style="width:100%"></table>
     <div id="btndiv" hidden>
-        <button id="cleanupbtn">Clean-up</button>
+        <button id="cleanupbtn">Confirm Clean-up</button>
     </div>
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
@@ -24,16 +26,16 @@
         $.get('http://localhost:3001/foldersize', { rootpath:$('#searchtxtbox').val() }, function(data) {
             var resulttb = $('#resulttb');
             resulttb.empty().append('<tr><th>Path</th><th>Size</th><th>Count</th></tr>');
-            var result = JSON.parse(data);
-            result.data.forEach(function(element){
+            currentdata = JSON.parse(data).data;
+            currentdata.forEach(function(element){
                 resulttb.append('<tr><td>'+element.path+'</td><td>'+numberWithCommas(element.size)+'</td><td>'+element.count+'</td></tr>');
             });
             $('#btndiv').hide();
         });
     });
 
-    $('#findemptybtn').click(function() {
-        $.get('http://localhost:3001/findempty', { rootpath:$('#searchtxtbox').val() }, function(data) {
+    $('#cleanemptybtn').click(function() {
+        $.get('http://localhost:3001/cleanempty', { rootpath:$('#searchtxtbox').val() }, function(data) {
             var resulttb = $('#resulttb');
             resulttb.empty().append('<tr><th>Path</th><th>Is Directory</th></tr>');
             currentdata = JSON.parse(data).data;
@@ -41,7 +43,26 @@
                 resulttb.append('<tr><td>'+element.path+'</td><td>'+element.isDirectory+'</td></tr>');
             });
             $('#btndiv').show();
-            currenttask = 'findempty';
+            currenttask = 'cleanempty';
+        });
+    });
+
+    $('#cleanrubbishbtn').click(function() {
+        $.get('http://localhost:3001/cleanrubbish', {rootpath:$('#searchtxtbox').val()}, function(data) {
+            var resulttb = $('#resulttb');
+            resulttb.empty().append('<tr><th>Path</th><th>Is Directory</th></tr>');
+            currentdata = JSON.parse(data).data;
+            currentdata.forEach(function(element) {
+                resulttb.append('<tr><td>'+element.path+'</td><td>'+element.isDirectory+'</td></tr>');
+            });
+            $('#btndiv').show();
+            currenttask = 'cleanrubbish';
+        });
+    });
+
+    $('#compressbtn').click(function() {
+        $.post('http://localhost:3001/compress', {data: JSON.stringify(currentdata) }, function(data) {
+
         });
     });
 

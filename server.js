@@ -1,10 +1,12 @@
 var fs = require('fs');
 var path = require('path');
 var express = require('express');
+var zipFolder = require('zip-folder');
+var rimraf = require("rimraf");
 
 var app = express();
-app.use(express.urlencoded());
-app.use(express.json());
+app.use(express.json({limit: '50mb'}));
+app.use(express.urlencoded({limit: '50mb'}));
 
 app.get('/', function(req, res) {
     res.sendFile('main.html', {root: __dirname})
@@ -15,8 +17,15 @@ var server = app.listen(port);
 console.log('Express app started on port ' + port);
 
 function readSizeRecursive(item) {
-    var stats = fs.lstatSync(item);
-    var result = { path: item, size: stats.size, count: 0 };
+    var stats = null; 
+    try {
+        stats = fs.lstatSync(item);
+    }
+    catch(error) {
+        console.log(error);
+        return { path: item, size: 0, count: 0 };
+    }
+    var result = { path: item, size: stats.size, count: 0, isDirectory: false };
 
     if (stats.isDirectory()) {
         var list = fs.readdirSync(item);
@@ -24,6 +33,7 @@ function readSizeRecursive(item) {
             var res = readSizeRecursive(path.join(item, diritem));
             result.size += res.size;
             result.count += res.count;
+            result.isDirectory = true;
         });
         return result;
     }   
@@ -38,6 +48,7 @@ app.get('/foldersize', function(req, res) {
     var list = fs.readdirSync(rootpath);
     var resultList = [];
     list.forEach(function(item) {
+        console.log('processing path: ' + item);
         var abspath = path.join(rootpath, item)
 
         var result = readSizeRecursive(abspath);
@@ -48,7 +59,14 @@ app.get('/foldersize', function(req, res) {
 });
 
 function findemptyRecursive(item, results) {
-    var stats = fs.lstatSync(item);
+    var stats = null;
+    try {
+        stats = fs.lstatSync(item);
+    }
+    catch(error) {
+        console.log(error);
+        return false;
+    } 
 
     if (stats.isDirectory()) {
         var list = fs.readdirSync(item);
@@ -68,21 +86,83 @@ function findemptyRecursive(item, results) {
     return false;
 }
 
-app.get('/findempty', function(req, res) {
+app.get('/cleanempty', function(req, res) {
+    console.log('start processing, please wait...');
     var rootpath = req.query.rootpath;
     var results = [];
     findemptyRecursive(rootpath, results);
+    console.log('processing completes');
     res.write(JSON.stringify({data: results}));
     res.end();
 });
 
-app.post('/findempty', function(req, res) {
+app.post('/cleanempty', function(req, res) {
     var result = JSON.parse(req.body.data);
     result.forEach(function(elem) {
         if (elem.isDirectory) {
             fs.rmdirSync(elem.path);
         } else {
             fs.unlinkSync(elem.path);
+        }
+    });
+});
+
+function findrubbishRecursive(item, results) {
+    var stats = null;
+    try {
+        stats = fs.lstatSync(item);
+    }
+    catch(error) {
+        console.log(error);
+        return;
+    } 
+
+    if (stats.isDirectory()) {
+        var list = fs.readdirSync(item);
+        list.forEach(function(subItem) {
+            if (subItem === 'node_modules') {
+                results.push({ path: path.join(item, subItem), isDirectory: true });
+                return;
+            }
+            findrubbishRecursive(path.join(item, subItem), results);
+        });
+    }
+}
+
+app.get('/cleanrubbish', function(req, res) {
+    console.log('start processing, please wait...');
+    var rootpath = req.query.rootpath;
+    var results = [];
+    findrubbishRecursive(rootpath, results);
+    console.log('processing completes');
+    res.write(JSON.stringify({data: results}));
+    res.end();
+});
+
+app.post('/cleanrubbish', function(req, res) {
+    var result = JSON.parse(req.body.data);
+    result.forEach(function(elem) {
+        if (elem.isDirectory) {
+            fs.rmdirSync(elem.path);
+        } else {
+            fs.unlinkSync(elem.path);
+        }
+    });
+});
+
+app.post('/compress', function(req, res) {
+    var result = JSON.parse(req.body.data);
+    result.forEach(function(elem) {
+        if (elem.isDirectory) {
+            console.log(elem);
+            zipFolder(elem.path, elem.path + '.zip', function(err) {
+                if (err) {
+                    console.log(err);
+                    return;
+                } else {
+                    rimraf.sync(elem.path);
+                }
+            });
         }
     });
 });
