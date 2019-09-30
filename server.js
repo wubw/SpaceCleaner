@@ -3,6 +3,7 @@ var path = require('path');
 var express = require('express');
 var zipFolder = require('zip-folder');
 var rimraf = require("rimraf");
+var crypto = require('crypto');
 
 var app = express();
 app.use(express.json({limit: '50mb'}));
@@ -147,6 +148,84 @@ app.post('/cleanrubbish', function(req, res) {
         } else {
             fs.unlinkSync(elem.path);
         }
+    });
+});
+
+function findduplicatesRecursive(item, results) {
+    var stats = null;
+    try {
+        stats = fs.lstatSync(item);
+    }
+    catch(error) {
+        console.log(error);
+        return;
+    } 
+
+    if (stats.isDirectory()) {
+        var list = fs.readdirSync(item);
+        list.forEach(function(subItem) {
+            findduplicatesRecursive(path.join(item, subItem), results);
+        });
+    } else {
+        if (stats.size in results) {
+            results[stats.size].push(item);
+        } else {
+            results[stats.size] = [item];
+        }
+    }
+}
+
+function checksum(str, algorithm, encoding) {
+    return crypto
+      .createHash(algorithm || 'md5')
+      .update(str, 'utf8')
+      .digest(encoding || 'hex')
+}
+
+app.get('/findreplicates', function(req, res) {
+    console.log('start processing, please wait...');
+    var rootpath = req.query.rootpath;
+    var results = {};
+    findduplicatesRecursive(rootpath, results);
+    var processedResults = [];
+    for (const [key, value] of Object.entries(results)) {
+        if (value.length > 1) {
+            var tempResults = {};
+            value.forEach(function(f) {
+                var cs = null;
+                try {
+                    var buf = fs.readFileSync(f);
+                    cs = checksum(buf);
+                } catch(error) {
+                    console.log('Error happens for following file: ' + error);
+                    console.log(f);
+                    return;
+                }
+
+                if (cs in tempResults) {
+                    tempResults[cs].push(f);
+                } else {
+                    tempResults[cs] = [f];
+                }
+            });
+            for (const [k, v] of Object.entries(tempResults)) {
+                if (v.length > 1) {
+                    processedResults.push({ filesize: key, files: v} );
+                }
+            }
+        }
+    }
+    console.log(processedResults);
+    console.log('processing completes');
+    res.write(JSON.stringify({data: processedResults}));
+    res.end();
+});
+
+app.post('/findreplicates', function(req, res) {
+    var result = JSON.parse(req.body.data);
+    result.forEach(function(elem) {
+        console.log('delete file: ' + elem);
+        fs.unlinkSync(elem);
     });
 });
 

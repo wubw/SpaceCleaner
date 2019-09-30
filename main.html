@@ -3,11 +3,13 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 </head>
 <body>
-    Search: <input id="searchtxtbox" type="text" name="rootpath" value="C:\Private\DNVGL Archive" style="width:40%">
+    Search: <input id="searchtxtbox" type="text" name="rootpath" value="C:\Private\01 Personal" style="width:40%">
     <button id="overviewbtn">Overview</button>
     <button id="cleanemptybtn">Clean Empty</button>
     <button id="cleanrubbishbtn">Clean Rubbish</button>
-    <button id="compressbtn">Compress</button><br>
+    <button id="findreplicates">Find replicates</button>
+    <button id="compressbtn">Compress</button>
+    <br>
     <table id="resulttb" style="width:100%"></table>
     <div id="btndiv" hidden>
         <button id="cleanupbtn">Confirm Clean-up</button>
@@ -60,13 +62,42 @@
         });
     });
 
+    $('#findreplicates').click(function() {
+        $.get('http://localhost:3001/findreplicates', {rootpath:$('#searchtxtbox').val()}, function(data) {
+            var resulttb = $('#resulttb');
+            resulttb.empty();
+            currentdata = JSON.parse(data).data;
+            var idx = 0;
+            currentdata.forEach(function(elem) {
+                resulttb.append('<div>Duplicated files found, select to remove:  '+numberWithCommas(elem.filesize) + '<br>');
+                elem.files.forEach(function(element) {
+                    resulttb.append('<label><input type="radio" name="'+idx+'">'+element+'</label><br>');
+                });
+                resulttb.append('<br></div>');
+                idx++;
+            });
+            $('#btndiv').show();
+            currenttask = 'findreplicates';
+        });
+    });
+
     $('#compressbtn').click(function() {
         $.post('http://localhost:3001/compress', {data: JSON.stringify(currentdata) }, function(data) {
 
         });
     });
 
+    function prepareforcleanup() {
+        if(currenttask === 'findreplicates') {
+            currentdata = [];
+            $("input[type=radio]:checked").parent('label').each(function() {
+                currentdata.push(this.textContent);
+            });
+        }
+    }
+
     $('#cleanupbtn').click(function() {
+        prepareforcleanup();
         $.post('http://localhost:3001/'+currenttask, { data: JSON.stringify(currentdata) }, function(data) {
 
         });
