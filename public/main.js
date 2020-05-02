@@ -127,5 +127,8 @@ $('#opttest').click(function() {
 });
 
 $('#optdisk2disk').click(function() {
-
+    var src = "E:\\01 HotData\nE:\\02 WarmData\nE:\\03 CoolData";
+    $('#searchtxtbox').val(src);
+    var tgt = "G:\\01 HotData\nG:\\02 WarmData\nG:\\03 CoolData";
+    $('#backuptxtbox').val(tgt);
 });
