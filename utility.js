@@ -12,11 +12,22 @@ function checksum(str, algorithm, encoding) {
 }
 
 function compareFilesContent(srcPath, targetPath) {
-    var srcbuf = fs.readFileSync(srcPath);
-    srccs = checksum(srcbuf);
-    var tgtbuf = fs.readFileSync(targetPath);
-    tgtcs = checksum(tgtbuf);
-    return srccs == tgtcs;
+    try {
+        var srcstats = fs.lstatSync(srcPath);
+        var tgtstats = fs.lstatSync(targetPath);
+        return srcstats.size == tgtstats.size;
+        /*
+        var srcbuf = fs.readFileSync(srcPath);
+        srccs = checksum(srcbuf);
+        var tgtbuf = fs.readFileSync(targetPath);
+        tgtcs = checksum(tgtbuf);
+        return srccs == tgtcs;
+        */
+    } catch(error) {
+        console.log('Error happens for following file: ' + error);
+        console.log(srcPath);
+        return false;
+    }
 }
 
 function compressFolder(path) {
