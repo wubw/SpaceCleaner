@@ -49,8 +49,12 @@ function copyFileSync( source, target ) {
             targetFile = path.join( target, path.basename( source ) );
         }
     }
-
-    fs.writeFileSync(targetFile, fs.readFileSync(source));
+    try {
+        fs.writeFileSync(targetFile, fs.readFileSync(source));
+    } catch(error) {
+        console.log(targetFile);
+        console.log(error);
+    }
 }
 
 function copyFolderRecursiveSync( source, target ) {

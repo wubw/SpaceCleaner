@@ -49,7 +49,12 @@ function getbackup(srcfolders, targetfolders, findings) {
 
     findings.onlySrc.forEach(function(item) {
         stats = fs.lstatSync(item.src);
+        console.log(item.src);
         if (stats.isDirectory()) {
+            if (item.src.indexOf('.epub/') > -1) {
+                console.log(item.src);
+                return;
+            }
             utility.copyFolderRecursiveSync(item.src, path.dirname(item.tgt));
         } else {
             fs.copyFile(item.src, item.tgt, (err) => {
@@ -58,6 +63,7 @@ function getbackup(srcfolders, targetfolders, findings) {
         }
     });
     findings.differentContent.forEach(function(item) {
+        console.log(item.src);
         fs.copyFile(item.src, item.tgt, (err) => {
             if (err) console.log(err);
           });

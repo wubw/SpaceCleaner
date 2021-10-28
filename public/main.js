@@ -197,31 +197,32 @@ $("#compressbtn").click(function () {
 });
 
 $("#optmac2disk").click(function () {
-  var src = "/Users/wubinwei/Documents\n/Users/wubinwei/WarmData";
+  var src = "/Users/binweiwu/Documents\n/Users/binweiwu/WarmData";
   $("#searchtxtbox").val(src);
-  var tgt = "/Volumes/5TDisk/01 HotData\n/Volumes/5TDisk/02 WarmData";
+  var tgt = "/Volumes/4TDisk/01 HotData\n/Volumes/4TDisk/02 WarmData";
+  $("#backuptxtbox").val(tgt);
+});
+
+$("#optusb2disk").click(function () {
+  var src = "/Volumes/Binwei_Flash/01 Books";
+  $("#searchtxtbox").val(src);
+  var tgt = "/Volumes/4TDisk/02 WarmData/01 Books";
   $("#backuptxtbox").val(tgt);
 });
 
 $("#opttest").click(function () {
-  var src = "/Users/wubinwei/Documents/2 Personal";
+  var src = "/Users/binweiwu/Documents/2 Personal";
   $("#searchtxtbox").val(src);
-  var tgt = "/Users/wubinwei/Downloads/Test";
+  var tgt = "/Users/binweiwu/Downloads/Test";
   $("#backuptxtbox").val(tgt);
 });
 
 $("#optdisk2disk-mac").click(function () {
   var src =
-    "/Volumes/5TDisk/01 HotData\n/Volumes/5TDisk/02 WarmData\n/Volumes/5TDisk/03 CoolData";
+    "/Volumes/4TDisk/01 HotData\n/Volumes/4TDisk/02 WarmData\n/Volumes/4TDisk/03 CoolData\n/Volumes/4TDisk/04 ColdData";
   $("#searchtxtbox").val(src);
   var tgt =
-    "/Volumes/Backup Plus/01 HotData\n/Volumes/Backup Plus/02 WarmData\n/Volumes/Backup Plus/03 CoolData";
+    "/Volumes/5TDisk/01 HotData\n/Volumes/5TDisk/02 WarmData\n/Volumes/5TDisk/03 CoolData\n/Volumes/5TDisk/04 ColdData";
   $("#backuptxtbox").val(tgt);
 });
 
-$("#optdisk2disk-win").click(function () {
-  var src = "E:\\01 HotData\nE:\\02 WarmData\nE:\\03 CoolData";
-  $("#searchtxtbox").val(src);
-  var tgt = "G:\\01 HotData\nG:\\02 WarmData\nG:\\03 CoolData";
-  $("#backuptxtbox").val(tgt);
-});
