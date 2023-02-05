@@ -11,7 +11,7 @@ function processCompareRecursive(srcPath, targetPath, findings) {
         return;
     }
 
-    if (stats.isDirectory()) {
+    if (!stats.isFile()) {
         var srcList = fs.readdirSync(srcPath);
         srcList.forEach(function(diritem) {
             var targetdiritemfullpath = path.join(targetPath, diritem);
@@ -50,7 +50,7 @@ function getbackup(srcfolders, targetfolders, findings) {
     findings.onlySrc.forEach(function(item) {
         stats = fs.lstatSync(item.src);
         console.log(item.src);
-        if (stats.isDirectory()) {
+        if (!stats.isFile()) {
             if (item.src.indexOf('.epub/') > -1) {
                 console.log(item.src);
                 return;
@@ -63,6 +63,9 @@ function getbackup(srcfolders, targetfolders, findings) {
         }
     });
     findings.differentContent.forEach(function(item) {
+        if (item.src.endsWith('Microsoft.url')) {
+            return;
+        }
         console.log(item.src);
         fs.copyFile(item.src, item.tgt, (err) => {
             if (err) console.log(err);

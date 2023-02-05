@@ -45,7 +45,7 @@ function copyFileSync( source, target ) {
     var targetFile = target;
 
     if ( fs.existsSync( target ) ) {
-        if ( fs.lstatSync( target ).isDirectory() ) {
+        if ( !fs.lstatSync( target ).isFile() ) {
             targetFile = path.join( target, path.basename( source ) );
         }
     }
@@ -62,14 +62,19 @@ function copyFolderRecursiveSync( source, target ) {
 
     var targetFolder = path.join( target, path.basename( source ) );
     if ( !fs.existsSync( targetFolder ) ) {
-        fs.mkdirSync( targetFolder );
+        try {
+            fs.mkdirSync( targetFolder );
+        } catch(error) {
+            console.log(targetFolder);
+            console.log(error);
+        }
     }
 
-    if ( fs.lstatSync( source ).isDirectory() ) {
+    if ( !fs.lstatSync( source ).isFile() ) {
         files = fs.readdirSync( source );
         files.forEach( function ( file ) {
             var curSource = path.join( source, file );
-            if ( fs.lstatSync( curSource ).isDirectory() ) {
+            if ( !fs.lstatSync( curSource ).isFile() ) {
                 copyFolderRecursiveSync( curSource, targetFolder );
             } else {
                 copyFileSync( curSource, targetFolder );

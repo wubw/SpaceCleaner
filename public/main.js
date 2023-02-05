@@ -219,10 +219,10 @@ $("#opttest").click(function () {
 
 $("#optdisk2disk-mac").click(function () {
   var src =
-    "/Volumes/4TDisk/01 HotData\n/Volumes/4TDisk/02 WarmData\n/Volumes/4TDisk/03 CoolData\n/Volumes/4TDisk/04 ColdData";
+    "/Volumes/4TDisk/01 HotData\n/Volumes/4TDisk/02 WarmData\n/Volumes/4TDisk/03 CoolData\n/Volumes/4TDisk/04 ColdData\n/Volumes/4TDisk/ImportantNotes";
   $("#searchtxtbox").val(src);
   var tgt =
-    "/Volumes/5TDisk/01 HotData\n/Volumes/5TDisk/02 WarmData\n/Volumes/5TDisk/03 CoolData\n/Volumes/5TDisk/04 ColdData";
+    "/Volumes/5TDisk/01 HotData\n/Volumes/5TDisk/02 WarmData\n/Volumes/5TDisk/03 CoolData\n/Volumes/5TDisk/04 ColdData\n/Volumes/5TDisk/ImportantNotes";
   $("#backuptxtbox").val(tgt);
 });
 
