@@ -12,7 +12,7 @@ function processFindingRecursive(item, findings) {
     }
     var result = { path: item, size: stats.size, count: 0, isDirectory: false };
 
-    if (stats.isDirectory()) {
+    if (!stats.isFile()) {
         var list = fs.readdirSync(item);
         if (findings !== null && findings.cleanempty && list.length === 0) {
             findings.emptyList.push({ path: item, isDirectory: true });
@@ -106,7 +106,7 @@ function postcleanup(resultlist) {
             console.log(error);
             return;
         } 
-        if (stats.isDirectory()) {
+        if (!stats.isFile()) {
             fs.rmdirSync(elem);
         } else {
             fs.unlinkSync(elem);
@@ -123,7 +123,7 @@ function findrubbishRecursive(item, results) {
         return;
     } 
 
-    if (stats.isDirectory()) {
+    if (!stats.isFile()) {
         var list = fs.readdirSync(item);
         list.forEach(function(subItem) {
             if (subItem === 'node_modules') {
@@ -154,7 +154,7 @@ function postcompress(resultlist) {
             console.log(error);
             return;
         }
-        if (stats.isDirectory()) {
+        if (!stats.isFile()) {
             console.log(elem);
             utility.compressFolder(elem);
         }
