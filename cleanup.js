@@ -27,6 +27,11 @@ function processFindingRecursive(item, findings) {
     }   
     else {
         result.count++;
+        var filename = path.basename(item);
+        if(filename.startsWith('._') || filename === '.DS_Store' || filename.endsWith('.icloud')) {
+            console.log('delete: ' + filename);
+            fs.unlinkSync(item);
+        }
         if(findings !== null && findings.cleanempty && stats.size === 0) {
             findings.emptyList.push( { path: item, isDirectory: false });
         }

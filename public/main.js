@@ -196,17 +196,17 @@ $("#compressbtn").click(function () {
   );
 });
 
-$("#optmac2disk").click(function () {
-  var src = "/Users/binweiwu/Documents\n/Users/binweiwu/WarmData";
+$("#pc2disk").click(function () {
+  var src = "C:\\Users\\BinweiWu.REDMOND\\OneDrive - Microsoft";
   $("#searchtxtbox").val(src);
-  var tgt = "/Volumes/4TDisk/01 HotData\n/Volumes/4TDisk/02 WarmData";
+  var tgt = "D:\\01 HotData";
   $("#backuptxtbox").val(tgt);
 });
 
-$("#optusb2disk").click(function () {
-  var src = "/Volumes/Binwei_Flash/01 Books";
+$("#pc2disk2").click(function () {
+  var src = "C:\\Users\\BinweiWu.REDMOND\\OneDrive - Microsoft";
   $("#searchtxtbox").val(src);
-  var tgt = "/Volumes/4TDisk/02 WarmData/01 Books";
+  var tgt = "D:\\01 HotData";
   $("#backuptxtbox").val(tgt);
 });
 
@@ -217,12 +217,10 @@ $("#opttest").click(function () {
   $("#backuptxtbox").val(tgt);
 });
 
-$("#optdisk2disk-mac").click(function () {
-  var src =
-    "/Volumes/4TDisk/01 HotData\n/Volumes/4TDisk/02 WarmData\n/Volumes/4TDisk/03 CoolData\n/Volumes/4TDisk/04 ColdData";
+$("#disk2disk").click(function () {
+  var src = "D:\\01 HotData\nD:\\02 ColdData";
   $("#searchtxtbox").val(src);
-  var tgt =
-    "/Volumes/5TDisk/01 HotData\n/Volumes/5TDisk/02 WarmData\n/Volumes/5TDisk/03 CoolData\n/Volumes/5TDisk/04 ColdData";
+  var tgt = "H:\\01 HotData\nH:\\02 ColdData";
   $("#backuptxtbox").val(tgt);
 });
 
