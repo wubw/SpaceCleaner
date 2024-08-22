@@ -199,14 +199,14 @@ $("#compressbtn").click(function () {
 $("#pc2disk").click(function () {
   var src = "C:\\Users\\BinweiWu.REDMOND\\OneDrive - Microsoft";
   $("#searchtxtbox").val(src);
-  var tgt = "D:\\01 HotData";
+  var tgt = "H:\\01 HotData";
   $("#backuptxtbox").val(tgt);
 });
 
-$("#pc2disk2").click(function () {
-  var src = "C:\\Users\\BinweiWu.REDMOND\\OneDrive - Microsoft";
+$("#usb2disk").click(function () {
+  var src = "D:\\Warm Data\nD:\\Cool Data";
   $("#searchtxtbox").val(src);
-  var tgt = "D:\\01 HotData";
+  var tgt = "H:\\Warm Data\nH:\\Cool Data";
   $("#backuptxtbox").val(tgt);
 });
 
@@ -218,9 +218,9 @@ $("#opttest").click(function () {
 });
 
 $("#disk2disk").click(function () {
-  var src = "D:\\01 HotData\nD:\\02 ColdData";
+  var src = "H:\\01 HotData\nH:\\02 ColdData\nH:\\Warm Data\nH:\\Cool Data";
   $("#searchtxtbox").val(src);
-  var tgt = "H:\\01 HotData\nH:\\02 ColdData";
+  var tgt = "F:\\01 HotData\nF:\\02 ColdData\nF:\\Warm Data\nF:\\Cool Data";
   $("#backuptxtbox").val(tgt);
 });
 
