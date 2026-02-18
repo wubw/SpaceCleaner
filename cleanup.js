@@ -1,24 +1,24 @@
-var fs = require('fs');
-var path = require('path');
-var utility = require('./utility');
+const fs = require('fs');
+const path = require('path');
+const utility = require('./utility');
 
 function processFindingRecursive(item, findings) {
-    var stats = null; 
+    let stats = null;
     try {
         stats = fs.lstatSync(item);
     } catch(error) {
         console.log(error);
         return { path: item, size: 0, count: 0 };
     }
-    var result = { path: item, size: stats.size, count: 0, isDirectory: false };
+    const result = { path: item, size: stats.size, count: 0, isDirectory: false };
 
     if (!stats.isFile()) {
-        var list = fs.readdirSync(item);
+        const list = fs.readdirSync(item);
         if (findings !== null && findings.cleanempty && list.length === 0) {
             findings.emptyList.push({ path: item, isDirectory: true });
         }
         list.forEach(function(diritem) {
-            var res = processFindingRecursive(path.join(item, diritem), findings);
+            const res = processFindingRecursive(path.join(item, diritem), findings);
             result.size += res.size;
             result.count += res.count;
             result.isDirectory = true;
@@ -27,7 +27,7 @@ function processFindingRecursive(item, findings) {
     }   
     else {
         result.count++;
-        var filename = path.basename(item);
+        const filename = path.basename(item);
         if(filename.startsWith('._') || filename === '.DS_Store' || filename.endsWith('.icloud')) {
             console.log('delete: ' + filename);
             fs.unlinkSync(item);
@@ -48,7 +48,7 @@ function processFindingRecursive(item, findings) {
 
 function getoverview(overviewList, findings, rootpathsplits) {
     rootpathsplits.forEach(function(rootpath) {
-        var list = null; 
+        let list = null;
         try {
             list = fs.readdirSync(rootpath);
         } catch(error) {
@@ -57,9 +57,9 @@ function getoverview(overviewList, findings, rootpathsplits) {
         }
         list.forEach(function(item) {
             console.log('processing path: ' + item);
-            var abspath = path.join(rootpath, item)
-    
-            var overview = processFindingRecursive(abspath, findings);
+            const abspath = path.join(rootpath, item);
+
+            const overview = processFindingRecursive(abspath, findings);
             overviewList.push(overview);
         });
     });
@@ -67,11 +67,11 @@ function getoverview(overviewList, findings, rootpathsplits) {
     if (findings.findreplicates) {
         for (const [key, value] of Object.entries(findings.duplicatesTempResults)) {
             if (value.length > 1) {
-                var tempResults = {};
+                const tempResults = {};
                 value.forEach(function(f) {
-                    var cs = null;
+                    let cs = null;
                     try {
-                        var buf = fs.readFileSync(f);
+                        const buf = fs.readFileSync(f);
                         cs = utility.checksum(buf);
                     } catch(error) {
                         console.log('Error happens for following file: ' + error);
@@ -99,7 +99,7 @@ function getoverview(overviewList, findings, rootpathsplits) {
 function postcleanup(resultlist) {
     resultlist.forEach(function(elem) {
         console.log('delete: ' + elem);
-        var stats = null;
+        let stats = null;
         try {
             stats = fs.lstatSync(elem);
         } catch(error) {
@@ -115,7 +115,7 @@ function postcleanup(resultlist) {
 }
 
 function findrubbishRecursive(item, results) {
-    var stats = null;
+    let stats = null;
     try {
         stats = fs.lstatSync(item);
     } catch(error) {
@@ -124,7 +124,7 @@ function findrubbishRecursive(item, results) {
     } 
 
     if (!stats.isFile()) {
-        var list = fs.readdirSync(item);
+        const list = fs.readdirSync(item);
         list.forEach(function(subItem) {
             if (subItem === 'node_modules') {
                 results.push({ path: path.join(item, subItem), isDirectory: true });
@@ -147,7 +147,7 @@ function postcleanrubbish(resultlist) {
 
 function postcompress(resultlist) {
     resultlist.forEach(function(elem) {
-        var stats = null; 
+        let stats = null; 
         try {
             stats = fs.lstatSync(elem);
         } catch(error) {

@@ -9,14 +9,14 @@ $(document).ready(function () {
 });
 
 $("#startbtn").click(function () {
-  var resultempty = $("#resultempty");
-  var resultduplicates = $("#resultduplicates");
+  const resultempty = $("#resultempty");
+  const resultduplicates = $("#resultduplicates");
   resultempty.empty();
   resultduplicates.empty();
   $("#btndiv").hide();
 
-  var cleanempty = $("#cleanemptycb").prop("checked");
-  var findreplicates = $("#findreplicatescb").prop("checked");
+  const cleanempty = $("#cleanemptycb").prop("checked");
+  const findreplicates = $("#findreplicatescb").prop("checked");
 
   $.get(
     CONFIG.apiBaseUrl + "/overview",
@@ -26,15 +26,16 @@ $("#startbtn").click(function () {
       findreplicates: findreplicates,
     },
     function (data) {
-      var overviewtb = $("#overviewtb");
+      const overviewtb = $("#overviewtb");
       overviewtb
         .empty()
         .append(
           "<caption>Overview</caption><tr><th>path</th><th>size</th><th>count</th></tr>"
         );
-      overviewList = JSON.parse(data).overview;
-      var totalsize = 0;
-      var totalcount = 0;
+      const parsedData = JSON.parse(data);
+      const overviewList = parsedData.overview;
+      let totalsize = 0;
+      let totalcount = 0;
       overviewList.forEach(function (element) {
         overviewtb.append(
           "<tr><td>" +
@@ -58,7 +59,7 @@ $("#startbtn").click(function () {
       );
 
       if (cleanempty) {
-        emptyList = JSON.parse(data).findings.emptyList;
+        const emptyList = parsedData.findings.emptyList;
         if (emptyList.length > 0) {
           resultempty
             .empty()
@@ -80,9 +81,9 @@ $("#startbtn").click(function () {
 
       if (findreplicates) {
         resultduplicates.empty();
-        var duplicatesList = JSON.parse(data).findings.duplicatesList;
+        const duplicatesList = parsedData.findings.duplicatesList;
         if (duplicatesList.length > 0) {
-          var idx = 0;
+          let idx = 0;
           resultduplicates.append(
             "<div><b>Duplicated files are found, select to remove.</b></div><br>"
           );
@@ -110,7 +111,7 @@ $("#startbtn").click(function () {
 });
 
 $("#cleanupbtn").click(function () {
-  var removefiles = [];
+  const removefiles = [];
   $("input[type=radio]:checked")
     .parent("label")
     .each(function () {
@@ -137,19 +138,19 @@ $("#backupbtn").click(function () {
       backuprootpath: $("#backuptxtbox").val(),
     },
     function (data) {
-      var resulttb = $("#resulttb");
+      const resulttb = $("#resulttb");
       resulttb.empty();
-      var resultduplicates = $("#resultduplicates");
+      const resultduplicates = $("#resultduplicates");
       resultduplicates.empty();
       $("#btndiv").hide();
 
-      var overviewtb = $("#overviewtb");
+      const overviewtb = $("#overviewtb");
       overviewtb
         .empty()
         .append(
           "<caption>Overview</caption><tr><th>path</th><th>type</th></tr>"
         );
-      overviewList = JSON.parse(data).data;
+      const overviewList = JSON.parse(data).data;
       if (overviewList.onlySrc) {
         overviewList.onlySrc.forEach(function (element) {
           overviewtb.append(
@@ -171,14 +172,13 @@ $("#backupbtn").click(function () {
 });
 
 $("#cleanrubbishbtn").click(function () {
-  var currentdata = null;
   $.get(
     CONFIG.apiBaseUrl + "/cleanrubbish",
     { rootpath: $("#searchtxtbox").val() },
     function (data) {
-      var resulttb = $("#resulttb");
+      const resulttb = $("#resulttb");
       resulttb.empty().append("<tr><th>Path</th><th>Is Directory</th></tr>");
-      currentdata = JSON.parse(data).data;
+      const currentdata = JSON.parse(data).data;
       currentdata.forEach(function (element) {
         resulttb.append(
           "<tr><td>" +
@@ -194,7 +194,7 @@ $("#cleanrubbishbtn").click(function () {
 });
 
 $("#compressbtn").click(function () {
-  var currentdata = $("#searchtxtbox").val().split(/\r?\n/);
+  const currentdata = $("#searchtxtbox").val().split(/\r?\n/);
   $.post(
     CONFIG.apiBaseUrl + "/compress",
     { data: JSON.stringify(currentdata) },

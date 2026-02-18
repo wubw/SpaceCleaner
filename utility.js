@@ -1,8 +1,8 @@
-var crypto = require('crypto');
-var zipFolder = require('zip-folder');
-var rimraf = require("rimraf");
-var fs = require('fs');
-var path = require('path');
+const crypto = require('crypto');
+const zipFolder = require('zip-folder');
+const rimraf = require("rimraf");
+const fs = require('fs');
+const path = require('path');
 
 function checksum(str, algorithm, encoding) {
     return crypto
@@ -13,9 +13,9 @@ function checksum(str, algorithm, encoding) {
 
 function compareFilesContent(srcPath, targetPath) {
     try {
-        var srcstats = fs.lstatSync(srcPath);
-        var tgtstats = fs.lstatSync(targetPath);
-        return srcstats.size == tgtstats.size;
+        const srcstats = fs.lstatSync(srcPath);
+        const tgtstats = fs.lstatSync(targetPath);
+        return srcstats.size === tgtstats.size;
         /*
         var srcbuf = fs.readFileSync(srcPath);
         srccs = checksum(srcbuf);
@@ -42,7 +42,7 @@ function compressFolder(path) {
 }
 
 function copyFileSync( source, target ) {
-    var targetFile = target;
+    let targetFile = target;
 
     if ( fs.existsSync( target ) ) {
         if ( !fs.lstatSync( target ).isFile() ) {
@@ -58,9 +58,9 @@ function copyFileSync( source, target ) {
 }
 
 function copyFolderRecursiveSync( source, target ) {
-    var files = [];
+    let files = [];
 
-    var targetFolder = path.join( target, path.basename( source ) );
+    const targetFolder = path.join( target, path.basename( source ) );
     if ( !fs.existsSync( targetFolder ) ) {
         try {
             fs.mkdirSync( targetFolder );

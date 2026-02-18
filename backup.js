@@ -1,9 +1,9 @@
-var utility = require('./utility');
-var fs = require('fs');
-var path = require('path');
+const utility = require('./utility');
+const fs = require('fs');
+const path = require('path');
 
 function processCompareRecursive(srcPath, targetPath, findings) {
-    var stats = null; 
+    let stats = null;
     try {
         stats = fs.lstatSync(srcPath);
     } catch(error) {
@@ -12,10 +12,10 @@ function processCompareRecursive(srcPath, targetPath, findings) {
     }
 
     if (!stats.isFile()) {
-        var srcList = fs.readdirSync(srcPath);
+        const srcList = fs.readdirSync(srcPath);
         srcList.forEach(function(diritem) {
-            var targetdiritemfullpath = path.join(targetPath, diritem);
-            var srcfullpath = path.join(srcPath, diritem);
+            const targetdiritemfullpath = path.join(targetPath, diritem);
+            const srcfullpath = path.join(srcPath, diritem);
             if (fs.existsSync(targetdiritemfullpath)) {
                 processCompareRecursive(srcfullpath, targetdiritemfullpath, findings);
             } else {
@@ -24,14 +24,14 @@ function processCompareRecursive(srcPath, targetPath, findings) {
             }
         });
     } else {
-        var targetStats = null;
+        let targetStats = null;
         try {
             targetStats = fs.lstatSync(targetPath);
         } catch(error) {
             console.log(error);
             return;
         }
-        if (stats.size != targetStats.size) {
+        if (stats.size !== targetStats.size) {
             findings.differentContent.push({src:srcPath, tgt:targetPath});
             return;
         }
@@ -43,23 +43,25 @@ function processCompareRecursive(srcPath, targetPath, findings) {
 }
 
 function getbackup(srcfolders, targetfolders, findings) {
-    for(var i = 0; i < srcfolders.length; i++) {
+    for (let i = 0; i < srcfolders.length; i++) {
         processCompareRecursive(srcfolders[i], targetfolders[i], findings);
     }
 
     findings.onlySrc.forEach(function(item) {
-        stats = fs.lstatSync(item.src);
+        const stats = fs.lstatSync(item.src);
         console.log(item.src);
         if (!stats.isFile()) {
             if (item.src.indexOf('.epub/') > -1) {
                 console.log(item.src);
                 return;
             }
-            utility.copyFolderRecursiveSync(item.src, path.dirname(item.tgt));
+                utility.copyFolderRecursiveSync(item.src, path.dirname(item.tgt));
         } else {
-            fs.copyFile(item.src, item.tgt, (err) => {
-                if (err) console.log(err);
-              });
+            try {
+                fs.copyFileSync(item.src, item.tgt);
+            } catch (err) {
+                console.log(err);
+            }
         }
     });
     findings.differentContent.forEach(function(item) {
@@ -67,9 +69,11 @@ function getbackup(srcfolders, targetfolders, findings) {
             return;
         }
         console.log(item.src);
-        fs.copyFile(item.src, item.tgt, (err) => {
-            if (err) console.log(err);
-          });
+        try {
+            fs.copyFileSync(item.src, item.tgt);
+        } catch (err) {
+            console.log(err);
+        }
     });
 }
 

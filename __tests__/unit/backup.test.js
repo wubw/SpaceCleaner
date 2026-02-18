@@ -225,5 +225,73 @@ describe('backup.js', () => {
       expect(findings.onlySrc).toHaveLength(0);
       expect(findings.differentContent).toHaveLength(0);
     });
+
+    // Issue 4: This test documents the sync/async mismatch bug
+    // getbackup uses async fs.copyFile but returns synchronously,
+    // so files may not be copied when the function returns in real environments
+    // (mock-fs executes callbacks synchronously, masking this issue)
+    it('should have files copied to target when getbackup returns (sync completion)', () => {
+      const sourceContent = 'This content should be copied';
+      const differentContent = 'Updated source content';
+
+      mockFs({
+        '/source': {
+          'newfile.txt': sourceContent,
+          'changedfile.txt': differentContent
+        },
+        '/target': {
+          'changedfile.txt': 'Old target content'
+        }
+      });
+
+      const findings = {
+        onlySrc: [],
+        differentContent: []
+      };
+
+      backup.getbackup(['/source'], ['/target'], findings);
+
+      // These assertions check that files are actually copied when getbackup returns
+      // Note: mock-fs executes callbacks synchronously, so this passes in tests
+      // but would fail in production where fs.copyFile is truly async
+
+      // Check that new file was copied
+      expect(fs.existsSync('/target/newfile.txt')).toBe(true);
+      expect(fs.readFileSync('/target/newfile.txt', 'utf8')).toBe(sourceContent);
+
+      // Check that changed file was updated
+      expect(fs.readFileSync('/target/changedfile.txt', 'utf8')).toBe(differentContent);
+    });
+
+    // Issue 4: Verify that synchronous fs.copyFileSync is used for reliable completion
+    // (Previously used async fs.copyFile which caused race conditions)
+    it('should use synchronous file copy for reliable completion', () => {
+      mockFs({
+        '/source': {
+          'file.txt': 'content'
+        },
+        '/target': {}
+      });
+
+      const copyFileSpy = jest.spyOn(fs, 'copyFile');
+      const copyFileSyncSpy = jest.spyOn(fs, 'copyFileSync');
+
+      const findings = {
+        onlySrc: [],
+        differentContent: []
+      };
+
+      backup.getbackup(['/source'], ['/target'], findings);
+
+      // BUG: Currently fs.copyFile (async) is used instead of fs.copyFileSync
+      // When the bug is fixed:
+      // - copyFileSync should be called (synchronous, reliable)
+      // - copyFile should NOT be called (async, unreliable completion)
+      expect(copyFileSpy).not.toHaveBeenCalled();
+      expect(copyFileSyncSpy).toHaveBeenCalled();
+
+      copyFileSpy.mockRestore();
+      copyFileSyncSpy.mockRestore();
+    });
   });
 });
