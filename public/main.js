@@ -2,6 +2,12 @@ function numberWithCommas(x) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
+// Initialize default values from config
+$(document).ready(function () {
+  $("#searchtxtbox").val(CONFIG.defaults.source);
+  $("#backuptxtbox").val(CONFIG.defaults.target);
+});
+
 $("#startbtn").click(function () {
   var resultempty = $("#resultempty");
   var resultduplicates = $("#resultduplicates");
@@ -13,7 +19,7 @@ $("#startbtn").click(function () {
   var findreplicates = $("#findreplicatescb").prop("checked");
 
   $.get(
-    "http://localhost:3001/overview",
+    CONFIG.apiBaseUrl + "/overview",
     {
       rootpath: $("#searchtxtbox").val(),
       cleanempty: cleanempty,
@@ -117,7 +123,7 @@ $("#cleanupbtn").click(function () {
     });
 
   $.post(
-    "http://localhost:3001/cleanup",
+    CONFIG.apiBaseUrl + "/cleanup",
     { data: JSON.stringify(removefiles) },
     function (data) {}
   );
@@ -125,7 +131,7 @@ $("#cleanupbtn").click(function () {
 
 $("#backupbtn").click(function () {
   $.get(
-    "http://localhost:3001/backup",
+    CONFIG.apiBaseUrl + "/backup",
     {
       rootpath: $("#searchtxtbox").val(),
       backuprootpath: $("#backuptxtbox").val(),
@@ -167,7 +173,7 @@ $("#backupbtn").click(function () {
 $("#cleanrubbishbtn").click(function () {
   var currentdata = null;
   $.get(
-    "http://localhost:3001/cleanrubbish",
+    CONFIG.apiBaseUrl + "/cleanrubbish",
     { rootpath: $("#searchtxtbox").val() },
     function (data) {
       var resulttb = $("#resulttb");
@@ -190,37 +196,29 @@ $("#cleanrubbishbtn").click(function () {
 $("#compressbtn").click(function () {
   var currentdata = $("#searchtxtbox").val().split(/\r?\n/);
   $.post(
-    "http://localhost:3001/compress",
+    CONFIG.apiBaseUrl + "/compress",
     { data: JSON.stringify(currentdata) },
     function (data) {}
   );
 });
 
 $("#pc2disk").click(function () {
-  var src = "C:\\Users\\BinweiWu.REDMOND\\OneDrive - Microsoft";
-  $("#searchtxtbox").val(src);
-  var tgt = "H:\\01 HotData";
-  $("#backuptxtbox").val(tgt);
+  $("#searchtxtbox").val(CONFIG.presets.pc2disk.source);
+  $("#backuptxtbox").val(CONFIG.presets.pc2disk.target);
 });
 
 $("#usb2disk").click(function () {
-  var src = "D:\\Warm Data\nD:\\Cool Data";
-  $("#searchtxtbox").val(src);
-  var tgt = "H:\\Warm Data\nH:\\Cool Data";
-  $("#backuptxtbox").val(tgt);
+  $("#searchtxtbox").val(CONFIG.presets.usb2disk.source);
+  $("#backuptxtbox").val(CONFIG.presets.usb2disk.target);
 });
 
 $("#opttest").click(function () {
-  var src = "/Users/binweiwu/Documents/2 Personal";
-  $("#searchtxtbox").val(src);
-  var tgt = "/Users/binweiwu/Downloads/Test";
-  $("#backuptxtbox").val(tgt);
+  $("#searchtxtbox").val(CONFIG.presets.opttest.source);
+  $("#backuptxtbox").val(CONFIG.presets.opttest.target);
 });
 
 $("#disk2disk").click(function () {
-  var src = "H:\\01 HotData\nH:\\02 ColdData\nH:\\Warm Data\nH:\\Cool Data";
-  $("#searchtxtbox").val(src);
-  var tgt = "F:\\01 HotData\nF:\\02 ColdData\nF:\\Warm Data\nF:\\Cool Data";
-  $("#backuptxtbox").val(tgt);
+  $("#searchtxtbox").val(CONFIG.presets.disk2disk.source);
+  $("#backuptxtbox").val(CONFIG.presets.disk2disk.target);
 });
 

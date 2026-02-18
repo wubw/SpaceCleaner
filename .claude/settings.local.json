@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(dir node_modulesjest)",
+      "Bash(npm config:*)",
+      "Bash(\"/c/Program Files/nodejs/npm\" install)",
+      "Bash(dir:*)",
+      "Bash(node -e:*)",
+      "Bash(npm test:*)"
+    ]
+  }
+}
